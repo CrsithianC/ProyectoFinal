@@ -124,7 +124,7 @@ Navega a la carpeta `proyecto-final/html` y abre el archivo `hospital_blockchain
 
 ## Créditos
 
-- **Desarrollado por:** [Tu Nombre / Nombre del Equipo]
+- **Desarrollado por:** Cristhian Farid Castillo Arcila
 - **Tecnología Blockchain:** Hyperledger Fabric
 - **Librerías Frontend:** Chart.js, Tailwind CSS
 - **Framework Backend:** Express.js
