@@ -28,27 +28,27 @@ La aplicación ofrece funcionalidades clave para la gestión hospitalaria:
 **Frontend:**
 
 - HTML5
-- Tailwind CSS
+- CSS3
 - JavaScript (Vanilla JS)
-- Chart.js
 
 **Backend:**
 
 - Node.js
 - Express.js
+- @hyperledger/fabric-gateway
 - Hyperledger Fabric SDK for Node.js
 - body-parser, cors
 
 **Blockchain:**
 
-- Hyperledger Fabric
-- Chaincode (Smart Contracts)
+- Hyperledger Fabric version 2.4.9
+- Chaincode (Smart Contracts) en Node
 
 ## Cómo Ejecutar el Proyecto
 
 ### Prerrequisitos
 
-- Node.js (versión 14 o superior recomendada)
+- Node.js (versión 16 o superior recomendada)
 - npm
 - Una red Hyperledger Fabric desplegada y en funcionamiento (para la versión completa)
 - Alternativamente, puedes usar el backend mock para desarrollo sin una red Fabric.
@@ -56,16 +56,19 @@ La aplicación ofrece funcionalidades clave para la gestión hospitalaria:
 ### Estructura del Proyecto
 
 ```
-proyecto-final/
-├── backend/
-│   ├── server.js
-│   ├── fabric.service.js       (o fabric-sdk-mock.js para la versión de prueba)
-│   ├── connection-org1.json
-│   ├── enrollAdmin.js
-│   └── wallet/                 (se creará al inscribir al admin)
-├── html/
-│   └── hospital_blockchain_spa_html.html
-└── package.json                (en la raíz del backend)
+hospital-fabric-NodeApp/
+├── public/
+│   ├── index.html          # Interfaz de usuario
+│   ├── app.js              # Lógica del frontend
+│   └── style.css           # Estilos
+├── wallet/                 # Creada al ejecutar los scripts de identidad
+├── connection-org1.json    # Perfil de conexión a la red Fabric
+├── enrollAdmin.js          # Script para registrar al admin
+├── fabric-client.js        # Módulo para la lógica de conexión con Fabric
+├── package.json
+├── package-lock.json
+├── registerUser.js         # Script para registrar al usuario de la app
+└── server.js               # Servidor de la API REST (punto de entrada)
 ```
 
 ### Pasos para el Backend
@@ -92,39 +95,25 @@ npm install
 ```bash
 node enrollAdmin.js
 ```
+- Inscribir al Usuario:
+```bash
+node registerUser.js
+```
+- Al finalizar, tendrás una nueva carpeta wallet con las credenciales `admin.id` y `appUser.id`.
 
 Esto creará la carpeta `wallet` y guardará la identidad del administrador.
 
-4. **Iniciar el servidor backend:**
-
-- **Para Fabric Real:** Asegúrate de importar `fabricService`.
+4. **Iniciar el servidor:**
 
 ```bash
-node server.js
+npm start 
 ```
-
-- **Para la Versión Mock (Desarrollo):** Asegúrate de importar y crear una instancia de `fabricSDKMock`.
-
-```bash
-node server.js
-```
+- El servidor de la API REST se iniciará y estará disponible en `http://localhost:3000`. También servirá automáticamente la interfaz de usuario.
 
 El servidor estará disponible en `http://localhost:3000`.
-
-### Pasos para el Frontend
-
-1. **Abrir el archivo HTML:**
-
-Navega a la carpeta `proyecto-final/html` y abre el archivo `hospital_blockchain_spa_html.html` en tu navegador web.
-
-2. **Interactuar con la aplicación:**
-
-- En la sección "Inicio", haz clic en "Conectar a Fabric (Mock)" para simular la conexión.
-- En "La Solución", puedes interactuar con formularios de demostración (Historias Clínicas, Trazabilidad, etc.).
 
 ## Créditos
 
 - **Desarrollado por:** Cristhian Farid Castillo Arcila
 - **Tecnología Blockchain:** Hyperledger Fabric
-- **Librerías Frontend:** Chart.js, Tailwind CSS
 - **Framework Backend:** Express.js
