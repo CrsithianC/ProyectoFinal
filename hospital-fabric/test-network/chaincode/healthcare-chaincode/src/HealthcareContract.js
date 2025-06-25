@@ -1,7 +1,6 @@
 'use strict';
 
 const { Contract, Context } = require('fabric-contract-api'); // Importa las clases necesarias de fabric-contract-api
-const shim = require('fabric-shim'); // Importa la librería shim
 
 // Clase para representar un registro médico electrónico de un paciente.
 class PatientRecord {
@@ -9,16 +8,16 @@ class PatientRecord {
         this.patientID = patientID;
         this.name = name;
         this.dateOfBirth = dateOfBirth;
-        this.entries = []; // Array de entradas en el historial médico
-        this.accessConsents = []; // Array de consentimientos activos
+        this.entries = [];
+        this.accessConsents = [];
     }
 }
 
-// Clase para representar una entrada individual en el historial médico.
 class RecordEntry {
-    constructor(entryID, eventType, description, doctorID, hospitalID) {
+    // CAMBIO: Se añade 'timestamp' como parámetro del constructor.
+    constructor(entryID, timestamp, eventType, description, doctorID, hospitalID) {
         this.entryID = entryID;
-        this.timestamp = new Date().toISOString();
+        this.timestamp = timestamp; // Se usa el timestamp proporcionado.
         this.eventType = eventType;
         this.description = description;
         this.doctorID = doctorID;
@@ -26,18 +25,17 @@ class RecordEntry {
     }
 }
 
-// Clase para representar el consentimiento de un paciente para acceder a sus datos.
 class AccessConsent {
-    constructor(consenterID, purpose, expiresAt = 'indefinido') {
+    // CAMBIO: Se añade 'grantedAt' como parámetro.
+    constructor(consenterID, purpose, grantedAt, expiresAt = 'indefinido') {
         this.consenterID = consenterID;
         this.purpose = purpose;
-        this.grantedAt = new Date().toISOString();
+        this.grantedAt = grantedAt; // Se usa la fecha proporcionada.
         this.expiresAt = expiresAt;
         this.isActive = true;
     }
 }
 
-// Clase para representar un lote de medicamentos en la cadena de suministro.
 class DrugBatch {
     constructor(batchID, productName, manufacturer, manufactureDate, expiryDate) {
         this.batchID = batchID;
@@ -45,15 +43,15 @@ class DrugBatch {
         this.manufacturer = manufacturer;
         this.manufactureDate = manufactureDate;
         this.expiryDate = expiryDate;
-        this.history = []; // Eventos de la cadena de suministro
+        this.history = [];
     }
 }
 
-// Clase para representar un evento en la historia de un lote de medicamentos.
 class BatchEvent {
-    constructor(eventID, location, status, actorID) {
+    // CAMBIO: Se añade 'timestamp' como parámetro.
+    constructor(eventID, timestamp, location, status, actorID) {
         this.eventID = eventID;
-        this.timestamp = new Date().toISOString();
+        this.timestamp = timestamp; // Se usa el timestamp proporcionado.
         this.location = location;
         this.status = status;
         this.actorID = actorID;
@@ -156,7 +154,7 @@ class HealthcareContract extends Contract {
      * @param {string} doctorID ID del médico que realiza la entrada.
      * @param {string} hospitalID ID del hospital.
      */
-    async addRecordEntry(ctx, patientID, entryID, eventType, description, doctorID, hospitalID) {
+    async addRecordEntry(ctx, patientID, entryID, eventType, description, doctorID, hospitalID, timestamp) {
         console.info(`Adding record entry ${entryID} for patient ${patientID}`);
 
         const patientAsBytes = await ctx.stub.getState(patientID);
@@ -172,7 +170,7 @@ class HealthcareContract extends Contract {
             throw new Error(`Entry ID ${entryID} already exists for patient ${patientID}`);
         }
 
-        const newEntry = new RecordEntry(entryID, eventType, description, doctorID, hospitalID);
+        const newEntry = new RecordEntry(entryID, timestamp, eventType, description, doctorID, hospitalID);
         patient.entries.push(newEntry);
 
         await ctx.stub.putState(patientID, Buffer.from(JSON.stringify(patient)));
@@ -188,8 +186,8 @@ class HealthcareContract extends Contract {
      * @param {string} purpose Propósito del acceso (ej: "Tratamiento", "Investigación").
      * @param {string} [expiresAt='indefinido'] Fecha de expiración del consentimiento (ISO 8601).
      */
-    async grantPatientAccess(ctx, patientID, consenterID, purpose, expiresAt = 'indefinido') {
-        console.info(`Granting access for ${consenterID} to patient ${patientID} for purpose ${purpose}`);
+    async grantPatientAccess(ctx, patientID, consenterID, purpose, expiresAt, grantedAt) {
+        console.info(`Granting access for ${consenterID} to patient ${patientID}`);
 
         const patientAsBytes = await ctx.stub.getState(patientID);
         if (!patientAsBytes || patientAsBytes.length === 0) {
@@ -205,7 +203,7 @@ class HealthcareContract extends Contract {
             }
         });
 
-        const newConsent = new AccessConsent(consenterID, purpose, expiresAt);
+        const newConsent = new AccessConsent(consenterID, purpose, grantedAt ,expiresAt);
         patient.accessConsents.push(newConsent);
 
         await ctx.stub.putState(patientID, Buffer.from(JSON.stringify(patient)));
@@ -269,9 +267,10 @@ class HealthcareContract extends Contract {
         let hasAccess = false;
         for (const consent of patient.accessConsents) {
             if (consent.consenterID === requestingConsenterID && consent.purpose === purpose && consent.isActive) {
-                if (consent.expiresAt !== 'indefinido') {
+                if (consent.expiresAt && consent.expiresAt !== 'indefinido') {
                     const expiryTime = new Date(consent.expiresAt);
-                    if (new Date() < expiryTime) {
+                    const txTimestamp = new Date(ctx.stub.getTxTimestamp().seconds.low * 1000);
+                    if (txTimestamp < expiryTime) {
                         hasAccess = true;
                         break;
                     }
@@ -310,21 +309,22 @@ class HealthcareContract extends Contract {
      * @param {string} expiryDate Fecha de expiración (ISO 8601).
      */
     async createDrugBatch(ctx, batchID, productName, manufacturer, manufactureDate, expiryDate) {
-        console.info(`Creating drug batch: ${batchID}`);
+       console.info(`Creating drug batch: ${batchID}`);
 
-        const exists = await this.drugBatchExists(ctx, batchID);
-        if (exists) {
-            throw new Error(`The drug batch ${batchID} already exists`);
-        }
+       const exists = await this.drugBatchExists(ctx, batchID);
+       if (exists) {
+           throw new Error(`The drug batch ${batchID} already exists`);
+       }
 
-        const drugBatch = new DrugBatch(batchID, productName, manufacturer, manufactureDate, expiryDate);
-        const initialEvent = new BatchEvent(`${batchID}-init`, manufacturer, 'Fabricado', manufacturer);
-        drugBatch.history.push(initialEvent);
+       const drugBatch = new DrugBatch(batchID, productName, manufacturer, manufactureDate, expiryDate);
+       const txTimestamp = new Date(ctx.stub.getTxTimestamp().seconds.low * 1000).toISOString();
+       const initialEvent = new BatchEvent(`${batchID}-init`, txTimestamp, manufacturer, 'Fabricado', manufacturer);
+       drugBatch.history.push(initialEvent);
 
-        await ctx.stub.putState(batchID, Buffer.from(JSON.stringify(drugBatch)));
-        console.info(`Drug batch ${batchID} created successfully.`);
-        return JSON.stringify(drugBatch);
-    }
+       await ctx.stub.putState(batchID, Buffer.from(JSON.stringify(drugBatch)));
+       console.info(`Drug batch ${batchID} created successfully.`);
+       return JSON.stringify(drugBatch);
+   }
 
     /**
      * Añade un nuevo evento a la historia de un lote de medicamentos.
@@ -335,7 +335,7 @@ class HealthcareContract extends Contract {
      * @param {string} status Estado del lote (ej: "En Tránsito", "Recibido").
      * @param {string} actorID Quién realizó la acción.
      */
-    async updateDrugBatchStatus(ctx, batchID, eventID, location, status, actorID) {
+    async updateDrugBatchStatus(ctx, batchID, eventID, location, status, actorID, timestamp) {
         console.info(`Updating status for drug batch ${batchID} with event ${eventID}`);
 
         const drugBatchAsBytes = await ctx.stub.getState(batchID);
@@ -351,12 +351,18 @@ class HealthcareContract extends Contract {
             throw new Error(`Event ID ${eventID} already exists for batch ${batchID}`);
         }
 
-        const newEvent = new BatchEvent(eventID, location, status, actorID);
+        const newEvent = new BatchEvent(eventID, timestamp, location, status, actorID);
         drugBatch.history.push(newEvent);
 
         await ctx.stub.putState(batchID, Buffer.from(JSON.stringify(drugBatch)));
         console.info(`Drug batch ${batchID} status updated.`);
         return JSON.stringify(drugBatch);
+    }
+
+    async patientExists(ctx, patientID) {
+        const patientAsBytes = await ctx.stub.getState(patientID);
+        return patientAsBytes && patientAsBytes.length > 0;
+
     }
 
     /**
