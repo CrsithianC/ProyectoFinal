@@ -1,0 +1,14 @@
+{
+    "name": "my-healthcare-app",
+    "version": "1.0.0",
+    "description": "Aplicación cliente para Chaincode de Sanidad en Hyperledger Fabric (usando @hyperledger/fabric-gateway)",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "@hyperledger/fabric-gateway": "^1.7.1",
+        "@grpc/grpc-js": "^1.9.0",
+        "fabric-ca-client": "^1.5.15"
+    }
+}
