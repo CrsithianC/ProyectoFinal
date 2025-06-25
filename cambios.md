@@ -1,5 +1,5 @@
-#Informe de Evolución y Arquitectura: De Script de Consola a API REST con Hyperledger Fabric
-##Proyecto: Sistema de Gestión Hospitalaria con Hyperledger Fabric
+# Informe de Evolución y Arquitectura: De Script de Consola a API REST con Hyperledger Fabric  
+## Proyecto: Sistema de Gestión Hospitalaria con Hyperledger Fabric  
 
 1. **Introducción**
 Este documento detalla el proceso de desarrollo, depuración y refactorización de la aplicación cliente Node.js, diseñada para interactuar con un smart contract (HealthcareContract) en una red Hyperledger Fabric. El objetivo inicial era crear un script funcional, pero el proyecto evolucionó hasta convertirse en una robusta API REST con una interfaz web, siguiendo las mejores prácticas de la industria.
