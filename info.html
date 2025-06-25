@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain en el Sistema Hospitalario Español</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: He diseñado la aplicación en torno a un flujo narrativo temático para guiar al usuario. Comienza con una introducción (El Problema), presenta la tecnología (La Solución), permite la exploración profunda a través de una sección de casos de uso interactivos, y finalmente presenta un análisis comparativo con un gráfico (Beneficios vs. Desafíos). Esta estructura se eligió porque convierte un informe denso en un viaje de descubrimiento, haciendo que la información compleja sea más digerible y atractiva que un simple recorrido lineal del documento original. La interactividad se centra en la sección de casos de uso para fomentar la exploración activa. -->
+    <!-- Visualization & Content Choices: 1. Desafíos Actuales -> Meta: Informar -> Presentación: Tarjetas interactivas con texto expandible -> Interacción: Clic para mostrar/ocultar detalles -> Justificación: Fomenta la participación del usuario desde el principio. 2. Características de Blockchain -> Meta: Organizar -> Presentación: Diagrama de cuadrícula con iconos (HTML/CSS) -> Interacción: Estática -> Justificación: Presenta conceptos clave de forma clara y visualmente ordenada. 3. Casos de Uso -> Meta: Explorar en profundidad -> Presentación: Pestañas interactivas que actualizan un área de contenido con texto y diagramas de flujo simples (HTML/CSS) -> Interacción: Clic en la pestaña para cambiar el contenido dinámicamente -> Justificación: Permite al usuario centrarse en un área de interés a la vez, evitando la sobrecarga de información. 4. Beneficios vs. Desafíos -> Meta: Comparar -> Presentación: Gráfico de barras horizontal interactivo -> Interacción: Botones para alternar entre vistas de 'Beneficios', 'Desafíos' y 'Ambos' -> Justificación: Transforma listas de texto en una comparación visual cuantitativa, destacando las magnitudes relativas de cada punto. Se utiliza Chart.js para su creación. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #374151;
+        }
+        .active-nav {
+            color: #047857;
+            font-weight: 600;
+        }
+        .inactive-nav {
+             color: #4B5563;
+        }
+        .active-tab {
+            background-color: #047857;
+            color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .inactive-tab {
+            background-color: #E5E7EB;
+            color: #374151;
+        }
+        .content-card {
+            transition: all 0.3s ease-in-out;
+            visibility: visible;
+            opacity: 1;
+            max-height: 1000px;
+        }
+        .content-card.hidden-section {
+            visibility: hidden;
+            opacity: 0;
+            max-height: 0;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-emerald-800">Salud Digital con Blockchain</h1>
+            <ul class="hidden md:flex space-x-8">
+                <li><a href="#problema" class="inactive-nav hover:text-emerald-700 transition-colors">El Problema</a></li>
+                <li><a href="#solucion" class="inactive-nav hover:text-emerald-700 transition-colors">La Solución</a></li>
+                <li><a href="#aplicaciones" class="inactive-nav hover:text-emerald-700 transition-colors">Aplicaciones</a></li>
+                <li><a href="#analisis" class="inactive-nav hover:text-emerald-700 transition-colors">Análisis</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="py-20 md:py-32 text-center bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl md:text-6xl font-bold text-gray-800 mb-4">Revolucionando la Sanidad Española</h2>
+                <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Explora cómo la tecnología blockchain puede transformar el sistema hospitalario, mejorando la seguridad, eficiencia y la atención al paciente.</p>
+            </div>
+        </section>
+
+        <section id="problema" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-gray-800 mb-2">Desafíos del Sistema Actual</h3>
+                    <p class="text-gray-600 max-w-2xl mx-auto">El Sistema Nacional de Salud, a pesar de su fortaleza, enfrenta retos clave que la tecnología puede ayudar a resolver. Haz clic en cada tarjeta para conocer más.</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md cursor-pointer challenge-card">
+                        <h4 class="text-xl font-semibold mb-2 text-emerald-800">1. Fragmentación de Datos</h4>
+                        <p class="text-gray-600 challenge-desc hidden">Los registros médicos dispersos dificultan la continuidad asistencial y el intercambio de información vital entre profesionales.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md cursor-pointer challenge-card">
+                        <h4 class="text-xl font-semibold mb-2 text-emerald-800">2. Seguridad y Privacidad</h4>
+                        <p class="text-gray-600 challenge-desc hidden">Los sistemas actuales son vulnerables a ciberataques, poniendo en riesgo la información sensible del paciente y el cumplimiento del GDPR.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md cursor-pointer challenge-card">
+                        <h4 class="text-xl font-semibold mb-2 text-emerald-800">3. Ineficiencia Administrativa</h4>
+                        <p class="text-gray-600 challenge-desc hidden">Procesos como la facturación y la gestión de suministros son lentos, complejos y propensos a errores humanos.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md cursor-pointer challenge-card">
+                        <h4 class="text-xl font-semibold mb-2 text-emerald-800">4. Trazabilidad de Fármacos</h4>
+                        <p class="text-gray-600 challenge-desc hidden">La dificultad para rastrear medicamentos abre la puerta a falsificaciones y complica la retirada de lotes defectuosos.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md cursor-pointer challenge-card">
+                        <h4 class="text-xl font-semibold mb-2 text-emerald-800">5. Compartición para Investigación</h4>
+                        <p class="text-gray-600 challenge-desc hidden">Compartir datos anonimizados para la investigación clínica es un proceso engorroso que frena la innovación médica.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solucion" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-gray-800 mb-2">Blockchain: Un Nuevo Paradigma</h3>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Blockchain es un registro digital descentralizado e inmutable que ofrece una base segura y transparente para una nueva generación de aplicaciones sanitarias.</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                    <div class="p-4">
+                        <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600 text-3xl">🔗</div>
+                        <h4 class="text-lg font-semibold mb-1">Inmutabilidad</h4>
+                        <p class="text-gray-600 text-sm">Los registros, una vez añadidos, no pueden ser alterados, garantizando la integridad de los datos médicos.</p>
+                    </div>
+                    <div class="p-4">
+                        <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600 text-3xl">🌐</div>
+                        <h4 class="text-lg font-semibold mb-1">Descentralización</h4>
+                        <p class="text-gray-600 text-sm">Elimina el punto único de fallo. La información es validada y compartida por múltiples participantes en la red.</p>
+                    </div>
+                    <div class="p-4">
+                        <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600 text-3xl">🛡️</div>
+                        <h4 class="text-lg font-semibold mb-1">Seguridad Criptográfica</h4>
+                        <p class="text-gray-600 text-sm">Las transacciones están protegidas con criptografía avanzada, asegurando la confidencialidad y el acceso.</p>
+                    </div>
+                    <div class="p-4">
+                        <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600 text-3xl">📄</div>
+                        <h4 class="text-lg font-semibold mb-1">Contratos Inteligentes</h4>
+                        <p class="text-gray-600 text-sm">Acuerdos autoejecutables que automatizan procesos como pagos o consentimientos cuando se cumplen las condiciones.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="aplicaciones" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-gray-800 mb-2">Casos de Uso Interactivos</h3>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Selecciona una aplicación para descubrir cómo la tecnología blockchain puede transformar áreas específicas del sistema hospitalario.</p>
+                </div>
+                <div class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
+                    <button data-tab="rme" class="app-tab py-2 px-4 rounded-full text-sm font-semibold transition-all duration-300 active-tab">Registros Médicos</button>
+                    <button data-tab="suministro" class="app-tab py-2 px-4 rounded-full text-sm font-semibold transition-all duration-300 inactive-tab">Cadena de Suministro</button>
+                    <button data-tab="consentimiento" class="app-tab py-2 px-4 rounded-full text-sm font-semibold transition-all duration-300 inactive-tab">Consentimiento del Paciente</button>
+                    <button data-tab="pagos" class="app-tab py-2 px-4 rounded-full text-sm font-semibold transition-all duration-300 inactive-tab">Pagos y Seguros</button>
+                    <button data-tab="investigacion" class="app-tab py-2 px-4 rounded-full text-sm font-semibold transition-all duration-300 inactive-tab">Investigación Clínica</button>
+                </div>
+                <div id="app-content-area" class="bg-white p-8 rounded-lg shadow-xl">
+                </div>
+            </div>
+        </section>
+        
+        <section id="analisis" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                 <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-gray-800 mb-2">Análisis Comparativo: Beneficios vs. Desafíos</h3>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Visualiza el impacto potencial de los beneficios frente a la dificultad de los desafíos de implementación. Usa los botones para filtrar la vista.</p>
+                </div>
+                 <div class="flex justify-center gap-4 mb-8">
+                    <button id="show-benefits" class="py-2 px-4 rounded-md text-sm font-semibold bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 transition-all">Ver Beneficios</button>
+                    <button id="show-challenges" class="py-2 px-4 rounded-md text-sm font-semibold bg-rose-600 text-white shadow-sm hover:bg-rose-700 transition-all">Ver Desafíos</button>
+                    <button id="show-all" class="py-2 px-4 rounded-md text-sm font-semibold bg-gray-600 text-white shadow-sm hover:bg-gray-700 transition-all">Ver Ambos</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="analysisChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 - Informe Interactivo sobre Blockchain en la Sanidad. Creado para demostración.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const challengeCards = document.querySelectorAll('.challenge-card');
+            challengeCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const desc = card.querySelector('.challenge-desc');
+                    desc.classList.toggle('hidden');
+                });
+            });
+
+            const appTabs = document.querySelectorAll('.app-tab');
+            const appContentArea = document.getElementById('app-content-area');
+            
+            const appContent = {
+                rme: {
+                    title: 'Registros Médicos Electrónicos (RME) Interoperables y Seguros',
+                    description: 'Cada paciente obtiene un identificador único en la blockchain, donde se registra de forma segura y cronológica todo su historial médico. El paciente mantiene el control total sobre quién accede a su información.',
+                    improvement: 'Elimina la fragmentación de datos. Cualquier profesional autorizado (con consentimiento del paciente) puede acceder al historial completo y actualizado, mejorando la calidad y rapidez del diagnóstico y tratamiento. La inmutabilidad garantiza la integridad del historial clínico.',
+                    diagram: `
+                        <div class="mt-4 border-t pt-4">
+                            <h5 class="font-semibold mb-2">Flujo Simplificado:</h5>
+                            <div class="flex items-center justify-between text-center text-xs md:text-sm">
+                                <div class="w-1/4 p-2 bg-emerald-50 rounded-md">Paciente crea<br>registro</div>
+                                <div class="flex-1 text-gray-400">→</div>
+                                <div class="w-1/4 p-2 bg-emerald-50 rounded-md">Datos se añaden<br>a la cadena</div>
+                                <div class="flex-1 text-gray-400">→</div>
+                                <div class="w-1/4 p-2 bg-emerald-50 rounded-md">Paciente otorga<br>acceso a Médico</div>
+                                <div class="flex-1 text-gray-400">→</div>
+                                <div class="w-1/4 p-2 bg-emerald-50 rounded-md">Médico consulta<br>historial unificado</div>
+                            </div>
+                        </div>
+                    `
+                },
+                suministro: {
+                    title: 'Gestión de la Cadena de Suministro Farmacéutica',
+                    description: 'Se registra cada etapa del ciclo de vida de un medicamento en la blockchain, desde su fabricación y lote hasta la dispensación en la farmacia del hospital.',
+                    improvement: 'Combate la falsificación de medicamentos al permitir una trazabilidad completa y verificable. Los hospitales pueden autenticar el origen y recorrido de cada fármaco, reduciendo riesgos para los pacientes y facilitando retiradas de lotes.',
+                    diagram: `
+                        <div class="mt-4 border-t pt-4">
+                            <h5 class="font-semibold mb-2">Trazabilidad del Fármaco:</h5>
+                            <div class="flex items-center justify-between text-center text-xs md:text-sm">
+                                <div class="w-1/5 p-2 bg-blue-50 rounded-md">Fabricante</div>
+                                <div class="flex-1 text-gray-400">→</div>
+                                <div class="w-1/5 p-2 bg-blue-50 rounded-md">Distribuidor</div>
+                                <div class="flex-1 text-gray-400">→</div>
+                                <div class="w-1/5 p-2 bg-blue-50 rounded-md">Almacén</div>
+                                <div class="flex-1 text-gray-400">→</div>
+                                <div class="w-1/5 p-2 bg-blue-50 rounded-md">Hospital</div>
+                                <div class="flex-1 text-gray-400">→</div>
+                                <div class="w-1/5 p-2 bg-blue-50 rounded-md">Paciente</div>
+                            </div>
+                        </div>
+                    `
+                },
+                consentimiento: {
+                    title: 'Gestión de Consentimientos y Privacidad del Paciente',
+                    description: 'Los pacientes gestionan sus consentimientos para el uso de sus datos a través de contratos inteligentes. Cada acceso requiere una autorización explícita y queda registrado de forma inmutable.',
+                    improvement: 'Fortalece drásticamente la privacidad del paciente y el cumplimiento del GDPR. Otorga a los individuos un control granular y auditable sobre quién, cuándo y para qué se accede a su información personal.',
+                    diagram: `
+                        <div class="mt-4 border-t pt-4">
+                            <h5 class="font-semibold mb-2">Proceso de Consentimiento:</h5>
+                            <div class="flex flex-col md:flex-row items-center justify-between text-center text-xs md:text-sm gap-2">
+                                <div class="w-full md:w-1/3 p-2 bg-yellow-50 rounded-md">1. Investigador solicita acceso a datos anonimizados.</div>
+                                <div class="text-gray-400">↓</div>
+                                <div class="w-full md:w-1/3 p-2 bg-yellow-50 rounded-md">2. Contrato inteligente verifica el consentimiento del paciente.</div>
+                                <div class="text-gray-400">↓</div>
+                                <div class="w-full md:w-1/3 p-2 bg-yellow-50 rounded-md">3. Acceso concedido/denegado y registrado en la cadena.</div>
+                            </div>
+                        </div>
+                    `
+                },
+                pagos: {
+                    title: 'Automatización de Pagos y Reclamaciones de Seguros',
+                    description: 'Los contratos inteligentes automatizan los procesos de facturación y reclamación entre hospitales, aseguradoras y el sistema público. La finalización de un tratamiento puede activar automáticamente la facturación.',
+                    improvement: 'Reduce drásticamente los tiempos de procesamiento, los errores administrativos y los costes de gestión. Aumenta la eficiencia y transparencia financiera del sistema, agilizando los flujos de caja.',
+                     diagram: `
+                        <div class="mt-4 border-t pt-4">
+                            <h5 class="font-semibold mb-2">Flujo de Facturación Automatizada:</h5>
+                            <div class="flex items-center justify-between text-center text-xs md:text-sm">
+                                <div class="w-1/4 p-2 bg-red-50 rounded-md">Fin del<br>Tratamiento</div>
+                                <div class="flex-1 text-gray-400">→</div>
+                                <div class="w-1/4 p-2 bg-red-50 rounded-md">Contrato Inteligente<br>genera factura</div>
+                                <div class="flex-1 text-gray-400">→</div>
+                                <div class="w-1/4 p-2 bg-red-50 rounded-md">Envío a<br>Aseguradora/SNS</div>
+                                 <div class="flex-1 text-gray-400">→</div>
+                                <div class="w-1/4 p-2 bg-red-50 rounded-md">Pago<br>Verificado</div>
+                            </div>
+                        </div>
+                    `
+                },
+                investigacion: {
+                    title: 'Investigación Clínica con Datos Anonimizados',
+                    description: 'Los investigadores pueden solicitar acceso a grandes conjuntos de datos de pacientes, anonimizados y agregados de forma segura a través de la blockchain, siempre con el consentimiento previo del paciente.',
+                    improvement: 'Acelera el descubrimiento de nuevos tratamientos y el avance médico. Facilita la colaboración ética y eficiente para la investigación, protegiendo al mismo tiempo la identidad y la privacidad de los individuos.',
+                     diagram: `
+                        <div class="mt-4 border-t pt-4">
+                            <h5 class="font-semibold mb-2">Compartición Segura de Datos:</h5>
+                            <div class="flex items-center justify-between text-center text-xs md:text-sm">
+                                <div class="w-1/3 p-2 bg-purple-50 rounded-md">Datos de Pacientes<br>(Anonimizados)</div>
+                                <div class="flex-1 text-gray-400">→</div>
+                                <div class="w-1/3 p-2 bg-purple-50 rounded-md">Pool de Datos<br>en Blockchain</div>
+                                <div class="flex-1 text-gray-400">→</div>
+                                <div class="w-1/3 p-2 bg-purple-50 rounded-md">Acceso controlado<br>para Investigación</div>
+                            </div>
+                        </div>
+                    `
+                }
+            };
+            
+            function updateAppContent(tabKey) {
+                const content = appContent[tabKey];
+                if (content) {
+                    appContentArea.innerHTML = `
+                        <div class="content-card">
+                            <h4 class="text-2xl font-bold text-emerald-800 mb-4">${content.title}</h4>
+                            <p class="text-gray-700 mb-4">${content.description}</p>
+                            <div class="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 p-4 rounded-r-lg">
+                                <p class="font-semibold">Mejora Clave:</p>
+                                <p>${content.improvement}</p>
+                            </div>
+                            ${content.diagram || ''}
+                        </div>
+                    `;
+                }
+            }
+            
+            appTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    appTabs.forEach(t => {
+                        t.classList.remove('active-tab');
+                        t.classList.add('inactive-tab');
+                    });
+                    tab.classList.add('active-tab');
+                    tab.classList.remove('inactive-tab');
+                    
+                    const tabKey = tab.dataset.tab;
+                    updateAppContent(tabKey);
+                });
+            });
+
+            updateAppContent('rme');
+            
+            const benefitsData = {
+                labels: ['Mayor Seguridad', 'Control del Paciente', 'Interoperabilidad', 'Transparencia', 'Eficiencia Operativa', 'Reducción de Errores'],
+                datasets: [{
+                    label: 'Impacto del Beneficio',
+                    data: [9, 9, 8, 8, 7, 7],
+                    backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                    borderColor: 'rgba(5, 150, 105, 1)',
+                    borderWidth: 1
+                }]
+            };
+
+            const challengesData = {
+                labels: ['Coste Implementación', 'Regulación y Ley', 'Interoperabilidad Legada', 'Escalabilidad', 'Gobernanza Red', 'Aceptación Cultural'],
+                datasets: [{
+                    label: 'Dificultad del Desafío',
+                    data: [9, 8, 8, 7, 7, 6],
+                    backgroundColor: 'rgba(225, 29, 72, 0.6)',
+                    borderColor: 'rgba(190, 18, 60, 1)',
+                    borderWidth: 1
+                }]
+            };
+
+            const allData = {
+                 labels: [...benefitsData.labels, ...challengesData.labels],
+                 datasets: [
+                    { ...benefitsData.datasets[0] },
+                    { ...challengesData.datasets[0] }
+                 ]
+            };
+            
+            const ctx = document.getElementById('analysisChart').getContext('2d');
+            const analysisChart = new Chart(ctx, {
+                type: 'bar',
+                data: benefitsData,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 10,
+                            title: {
+                                display: true,
+                                text: 'Puntuación (Impacto / Dificultad)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        label += context.parsed.x;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('show-benefits').addEventListener('click', () => {
+                analysisChart.data = benefitsData;
+                analysisChart.options.plugins.legend.display = true;
+                analysisChart.update();
+            });
+
+             document.getElementById('show-challenges').addEventListener('click', () => {
+                analysisChart.data = challengesData;
+                analysisChart.options.plugins.legend.display = true;
+                analysisChart.update();
+            });
+            
+             document.getElementById('show-all').addEventListener('click', () => {
+                analysisChart.data = allData;
+                analysisChart.options.plugins.legend.display = true;
+                analysisChart.update();
+            });
+        });
+    </script>
+</body>
+</html>
