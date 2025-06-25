@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Healthcare Fabric</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dashboard - Healthcare en Fabric</h1>
+            <p>Interfaz para interactuar con el chaincode a través de la API REST.</p>
+        </header>
+
+        <main>
+            <!-- Crear Paciente -->
+            <section class="card">
+                <h2>Crear Paciente</h2>
+                <form id="createPatientForm">
+                    <div class="form-group">
+                        <label for="patientId">ID del Paciente</label>
+                        <input type="text" id="patientId" placeholder="Ej: PATIENT_123456" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientName">Nombre Completo</label>
+                        <input type="text" id="patientName" placeholder="Ej: Ana García" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientDob">Fecha de Nacimiento</label>
+                        <input type="date" id="patientDob" required>
+                    </div>
+                    <button type="submit">Crear</button>
+                </form>
+            </section>
+
+             <!-- Conceder Acceso -->
+            <section class="card">
+                <h2>2. Conceder Acceso a Paciente</h2>
+                <p class="description">Después de crear un paciente, debes concederle acceso a un médico para poder consultar su historial.</p>
+                <form id="grantAccessForm">
+                    <div class="form-group">
+                        <label for="grantAccessPatientId">ID del Paciente (del paso 1)</label>
+                        <input type="text" id="grantAccessPatientId" placeholder="ID del paciente" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="consenterId">ID del Solicitante</label>
+                        <input type="text" id="consenterId" value="MEDICO_ESPECIALISTA" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="purpose">Propósito</label>
+                        <input type="text" id="purpose" value="Tratamiento" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expiresAt">Fecha de Expiración</label>
+                        <input type="datetime-local" id="expiresAt" required>
+                    </div>
+                    <button type="submit">Conceder Acceso</button>
+                </form>
+            </section>
+
+            <!-- Consultar Historial -->
+            <section class="card">
+                <h2>3. Consultar Historial de Paciente</h2>
+                 <p class="description">Una vez concedido el acceso, puedes consultar el historial.</p>
+                <form id="queryPatientForm">
+                     <div class="form-group">
+                        <label for="queryPatientId">ID del Paciente a Consultar</label>
+                        <input type="text" id="queryPatientId" placeholder="Introduce el ID del paciente" required>
+                    </div>
+                    <button type="submit">Consultar</button>
+                </form>
+            </section>
+
+             <!-- Añadir Entrada al Historial -->
+            <section class="card">
+                <h2>4. (Opcional) Añadir Entrada al Historial</h2>
+                <form id="addEntryForm">
+                    <div class="form-group">
+                        <label for="addEntryPatientId">ID del Paciente</label>
+                        <input type="text" id="addEntryPatientId" placeholder="ID del paciente a modificar" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="entryType">Tipo de Evento</label>
+                        <input type="text" id="entryType" value="Diagnóstico" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="description">Descripción</label>
+                        <textarea id="description" rows="2" required>Fiebre y dolor de garganta.</textarea>
+                    </div>
+                     <div class="form-group">
+                        <label for="doctorId">ID del Doctor</label>
+                        <input type="text" id="doctorId" value="DR_JUAN_P" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="hospitalId">ID del Hospital</label>
+                        <input type="text" id="hospitalId" value="HOSP_CENTRAL" required>
+                    </div>
+                    <button type="submit">Añadir Entrada</button>
+                </form>
+            </section>
+
+            <!-- Resultados -->
+            <section class="card">
+                <h2>Resultados</h2>
+                <div id="status">Esperando acciones...</div>
+                <pre id="result"></pre>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
