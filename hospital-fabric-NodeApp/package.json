@@ -9,6 +9,6 @@
     "dependencies": {
         "@hyperledger/fabric-gateway": "^1.7.1",
         "@grpc/grpc-js": "^1.9.0",
-        "fabric-ca-client": "^1.5.15"
+        "fabric-ca-client": "^2.0.0"
     }
 }
