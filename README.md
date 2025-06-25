@@ -110,8 +110,6 @@ npm start
 ```
 - El servidor de la API REST se iniciará y estará disponible en `http://localhost:3000`. También servirá automáticamente la interfaz de usuario.
 
-El servidor estará disponible en `http://localhost:3000`.
-
 ## Créditos
 
 - **Desarrollado por:** Cristhian Farid Castillo Arcila
